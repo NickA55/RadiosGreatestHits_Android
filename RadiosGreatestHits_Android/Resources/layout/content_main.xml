@@ -12,7 +12,7 @@
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="Radio Background"
+        android:contentDescription="@string/radio_background_alt"
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,7 +23,7 @@
         app:srcCompat="@drawable/radio_red_bg" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/txtRequest"
         android:layout_width="264dp"
         android:layout_height="45dp"
         android:layout_marginStart="16dp"
@@ -31,6 +31,8 @@
         android:layout_marginTop="44dp"
         android:ems="10"
         android:hint="Send a request"
+        android:textColorHint="#FFFFFF"
+        android:textColor="#FFFFFF"
         android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -77,6 +79,7 @@
 
     <ImageView
         android:id="@+id/imageView2"
+        android:contentDescription="@string/record_player_alt"
         android:layout_width="103dp"
         android:layout_height="105dp"
         android:layout_marginTop="12dp"
@@ -135,7 +138,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Muted"
+        android:text=""
         android:textColor="#FFFFFF"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
@@ -143,8 +146,3 @@
         app:layout_constraintTop_toBottomOf="@+id/btnPlay" />
 
     </android.support.constraint.ConstraintLayout>
-
-
-
-<!--</androidx.constraintlayout.widget.ConstraintLayout>
-<androidx.constraintlayout.widget.ConstraintLayout-->

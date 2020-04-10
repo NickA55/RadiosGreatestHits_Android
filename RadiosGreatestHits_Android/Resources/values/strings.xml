@@ -2,4 +2,7 @@
 <resources>
     <string name="app_name">RadiosGreatestHits_Android</string>
     <string name="action_settings">Settings</string>
+
+    <string name="radio_background_alt">Radio Background</string>
+    <string name="record_player_alt">Send Request Image</string>
 </resources>

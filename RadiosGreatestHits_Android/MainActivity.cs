@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Timers;
 using System.Xml;
 using Android.App;
@@ -28,6 +29,8 @@ namespace RadiosGreatestHits_Android
         Button btnMute;
 
         TextView lblNowPlaying;
+        EditText txtRequest;
+        ImageView imgSendRequest;
 
         string iconPlay = "\uf144";
         string iconPause = "\uf28b";
@@ -51,10 +54,14 @@ namespace RadiosGreatestHits_Android
             btnMute = FindViewById<Button>(Resource.Id.btnMute);
 
             lblNowPlaying = FindViewById<TextView>(Resource.Id.lblNowPlaying);
+            txtRequest = FindViewById<EditText>(Resource.Id.txtRequest);
+            imgSendRequest = FindViewById<ImageView>(Resource.Id.imageView);
 
             btnPlay.Click += BtnPlay_Click;
             btnStop.Click += BtnStop_Click;
             btnMute.Click += BtnMute_Click;
+
+            imgSendRequest.Click += ImgSendRequest_Click;
 
             var FARegular = Typeface.CreateFromAsset(Application.Assets, "FontAwesome5FreeRegular.otf");
             var FASolid = Typeface.CreateFromAsset(Application.Assets, "FontAwesome5FreeSolid.otf");
@@ -71,6 +78,28 @@ namespace RadiosGreatestHits_Android
             btnMute.Typeface = FASolid;
             btnMute.Text = iconVolume;
 
+            lblNowPlaying.Text = "(Stream stopped)";
+
+        }
+
+        private void ImgSendRequest_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtRequest.Text))
+            {
+                Android.App.AlertDialog.Builder dialog = new Android.App.AlertDialog.Builder(this);
+                Android.App.AlertDialog alert = dialog.Create();
+                alert.SetTitle("Email Request");
+                alert.SetMessage("Please enter a request");
+                alert.SetButton("OK", (c, ev) =>
+                {
+                    // Ok button click task  
+                });
+                alert.Show();
+            }
+            else
+            {
+                SendRequest();
+            }
         }
 
         public override void OnBackPressed()
@@ -88,9 +117,8 @@ namespace RadiosGreatestHits_Android
             {
                 if (player.IsPlaying)
                 {
+                    lblNowPlaying.Text = "(Buffering...)";
                     StartTimer();
-
-                    System.Diagnostics.Debug.WriteLine("****************** STARTING ******************");
                 }
             }
         }
@@ -101,7 +129,7 @@ namespace RadiosGreatestHits_Android
 
             var p = player == null;
 
-            System.Diagnostics.Debug.WriteLine("****************** STOPPING ******************");
+            lblNowPlaying.Text = "(Stream stopped)";
 
             StopTimer();
         }
@@ -119,7 +147,7 @@ namespace RadiosGreatestHits_Android
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    lblNowPlaying.Text = "Buffering, please wait...";
+                    lblNowPlaying.Text = "(Buffering...)";
                 });
                 
 
@@ -140,12 +168,14 @@ namespace RadiosGreatestHits_Android
                 {
                     player.Pause();
                     btnPlay.Text = iconPlay;
+                    lblNowPlaying.Text = "(Stream paused)";
                     StopTimer();
                 }
                 else
                 {
                     player.Start();
                     btnPlay.Text = iconPause;
+                    lblNowPlaying.Text = "(Buffering...)";
                     StartTimer();
                 }
             }
@@ -163,17 +193,13 @@ namespace RadiosGreatestHits_Android
                     btnMute.Text = iconVolume;
                     btnMute.SetTextColor(Color.White);
                     GetAudioManager().SetStreamVolume(Stream.Music, currentStreamVolume, 0);
-
-                    lblNowPlaying.Text = "unmuted";
                 } else
                 {
+                    currentStreamVolume = GetAudioManager().GetStreamVolume(Stream.Music);
                     btnMute.Text = iconMute;
                     btnMute.SetTextColor(Color.Red);
 
                     GetAudioManager().SetStreamVolume(Stream.Music, 0, 0);
-
-                    lblNowPlaying.Text = "muted";
-
                 }
             }
         }
@@ -193,13 +219,56 @@ namespace RadiosGreatestHits_Android
 
                 GetAudioManager().SetStreamVolume(Stream.Music, currentStreamVolume, 0);
 
-                lblNowPlaying.Text = "stopped";
+                lblNowPlaying.Text = "(Stream stopped)";
 
                 player = null;
 
             }
         }
 
+        private async void SendRequest()
+        {
+            List<string> rec = new List<string>();
+
+            rec.Add("nalonge@gmail.com");
+
+            try
+            {
+                var message = new EmailMessage
+                {
+                    Subject = "Song Request",
+                    Body = $"Song Request: {txtRequest.Text}",
+                    To = rec,
+                };
+                await Email.ComposeAsync(message);
+            }
+            catch (FeatureNotSupportedException fbsEx)
+            {
+                Android.App.AlertDialog.Builder dialog = new Android.App.AlertDialog.Builder(this);
+                Android.App.AlertDialog alert = dialog.Create();
+                alert.SetTitle("Email Request");
+                alert.SetMessage("Email is not supported on this device");
+                alert.SetButton("OK", (c, ev) =>
+                {
+                    // Ok button click task  
+                });
+                alert.Show();
+            }
+            catch (Exception ex)
+            {
+                Android.App.AlertDialog.Builder dialog = new Android.App.AlertDialog.Builder(this);
+                Android.App.AlertDialog alert = dialog.Create();
+                alert.SetTitle("Email Request");
+                alert.SetMessage($"An error occured sending email: {ex.Message}");
+                alert.SetButton("OK", (c, ev) =>
+                {
+                    // Ok button click task  
+                });
+                alert.Show();
+            }
+
+            txtRequest.Text = "";
+        }
 
         private bool IsMuted()
         {
